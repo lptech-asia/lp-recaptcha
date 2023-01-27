@@ -1,0 +1,22 @@
+{
+    "name": "lptech-asia/lp-recaptcha",
+    "type": "library",
+    "description": "The simple Gooogle recaptcha libraries, use same with google recaptcha libraries however low code, optimize.",
+    "keywords": ["php","captcha", "google", "recaptcha", "spam", "antispam", "simple recaptcha"],
+    "homepage": "https://github.com/lptech-asia/lp-recaptcha/",
+    "license": "LGPL-3.0",
+    "authors": [
+        {
+            "name": "Le Van Phu",
+            "email": "hackerpro536@gmail.com",
+            "homepage": "https://github.com/lptech-asia/",
+            "role": "Founder"
+        }
+    ],
+    "require": {
+        "php": ">=5.0.0"
+    },
+    "autoload": {
+        "files": ["recaptcha.php"]
+    }
+}
