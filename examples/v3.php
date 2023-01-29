@@ -17,7 +17,8 @@
     
         <form id="newsletterForm" action="v3.php" method="post">
             <div>
-                <input type="email" id="email" name="email"> <input type="submit" value="submit">
+                <input type="email" id="email" name="email">
+                <input type="submit" value="submit">
             </div>
         </form>
     </body>

@@ -1,12 +1,12 @@
 <?php
     require '../recaptcha.php';
-    $recaptcha = new LPRecaptcha('6LdC9AsTAAAAAP2SnfwJoRVEX6xBvJgp-2rmAYVo');
-    $recaptcha->setSitekey('6LdC9AsTAAAAADlIXc7SpSMtdGk__dptSVD23nrU')->setVersion(2);
+    $recaptcha = new LPRecaptcha('your-secrect-key');
+    $recaptcha->setSitekey('your-site-key')->setVersion(2);
     
 ?>
 <html>
     <head>
-        <title>reCAPTCHA demo: Explicit render after an onload callback</title>
+        <title>reCAPTCHA v2: Explicit render after an onload callback</title>
     </head>
     <body>
         <form action="" method="post">
@@ -22,6 +22,7 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') 
 {
+    // name is g-recaptcha-response
     $resp = $recaptcha->verify($_POST['g-recaptcha-response']);
     if ($resp->isSuccess()) 
     {
