@@ -8,6 +8,7 @@ class LPRecaptcha {
     private static $__instance = null;
     private $entity = null;
     private $threshold = 0.5;
+    private $version = 3;
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -32,6 +33,12 @@ class LPRecaptcha {
     public function setSitekey($site_key = '')
     {
         $this->site_key = $site_key;
+        return $this;
+    }
+
+    public function setVersion($version = 3)
+    {
+        $this->version = $version;
         return $this;
     }
     
@@ -71,7 +78,7 @@ class LPRecaptcha {
         $isVaild = true;
         if(empty($gRecaptchaResponse))
         {
-            $this->entity->setMessage('Website này chưa cấu hình reCaptcha v3, Vui lòng kiểm tra Site key!');
+            $this->entity->setMessage('Bạn dường như là Robot vui lòng xác nhận bảo mật trước khi tiếp tục quá trình này.');
             $isVaild = false;
         }
         if(empty($this->secret))
@@ -100,32 +107,58 @@ class LPRecaptcha {
         curl_close($ch);
         $arrResponse = json_decode($response, true);
         // verify the response 
-        if($arrResponse["success"] == '1' && $arrResponse["action"] == $this->action && $arrResponse["score"] >= $this->threshold) {
-            $this->entity->setSuccess(true);
+        if($this->version == 3 )
+        {
+                if($arrResponse["success"] == '1' && $arrResponse["action"] == $this->action && $arrResponse["score"] >= $this->threshold) {
+                    $this->entity->setSuccess(true);
+                } else {
+                    $this->entity->setMessage(end($arrResponse['error-codes']));
+                }
         } else {
-            $this->entity->setMessage(end($arrResponse['error-codes']));
-
+            if($arrResponse["success"] == true) {
+                $this->entity->setSuccess(true);
+            } else {
+                $this->entity->setMessage(end($arrResponse['error-codes']));
+            }
         }
+        
         return $this->entity;
     }
 
 
     public function render($form_id = 'contact-frm' , $action = 'submit')
     {
-        echo <<< EOT
-            <script src="https://www.google.com/recaptcha/api.js?render={$this->site_key}"></script>
-            <script>
-                $('#{$form_id}').submit(function(event) {
-                    event.preventDefault();
-                    grecaptcha.ready(function() {
-                        grecaptcha.execute("{$this->site_key}", {action: '{$action}'}).then(function(token) {
-                            $('#{$form_id}').prepend('<input type="hidden" name="token" value="' + token + '">');
-                            $('#{$form_id}').prepend('<input type="hidden" name="action" value="{$action}">');
-                            $('#{$form_id}').unbind('submit').submit();
-                        });;
+        if($this->version == 3)
+        {
+            echo <<< EOT
+                <script src="https://www.google.com/recaptcha/api.js?render={$this->site_key}"></script>
+                <script>
+                    $('#{$form_id}').submit(function(event) {
+                        event.preventDefault();
+                        grecaptcha.ready(function() {
+                            grecaptcha.execute("{$this->site_key}", {action: '{$action}'}).then(function(token) {
+                                $('#{$form_id}').prepend('<input type="hidden" name="token" value="' + token + '">');
+                                $('#{$form_id}').prepend('<input type="hidden" name="action" value="{$action}">');
+                                $('#{$form_id}').unbind('submit').submit();
+                            });;
+                        });
                     });
-                });
-            </script>
-        EOT;
+                </script>
+            EOT;
+        }
+
+        if($this->version == 2)
+        {
+            echo <<< EOT
+                <script src="https://www.google.com/recaptcha/api.js?onload=LPRecaptchaCallback&render=explicit" async defer></script>
+                <script type="text/javascript">
+                var LPRecaptchaCallback = function() {
+                    grecaptcha.render('{$form_id}', {
+                        'sitekey' : '{$this->site_key}'
+                    });
+                };
+                </script>
+            EOT;
+        }
     }
 }
